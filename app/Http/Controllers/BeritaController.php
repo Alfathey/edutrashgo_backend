@@ -2,64 +2,96 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Berita;
 use Illuminate\Http\Request;
-use App\Http\Resources\DaftarBeritaResource;
+use App\Models\Berita;
 
 class BeritaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Menampilkan semua data berita.
     public function index()
     {
-        $daftarBerita = Berita::all();
-
-
-        return response()->json(
-            [
-                'status' => 'success',
-                'message' => 'Daftar berita berhasil di ambil',
-                'data' => DaftarBeritaResource::collection($daftarBerita)
-            ],
-            200
-        );
+        $berita = Berita::all();
+        return response()->json([
+            'success' => true,
+            'message' => 'List of all berita',
+            'data' => $berita
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Menyimpan data berita baru.
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'judul' => 'required|string|max:255',
+            'konten' => 'required|string',
+            'penulis' => 'nullable|string|max:255'
+        ]);
+
+        $berita = Berita::create($validatedData);
+        return response()->json([
+            'success' => true,
+            'message' => 'Berita created successfully',
+            'data' => $berita
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
+    // Menampilkan data berita tertentu.
     public function show($id)
     {
         $berita = Berita::find($id);
+        if (!$berita) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Berita not found'
+            ], 404);
+        }
 
-        return response()->json(
-            $berita,
-            200
-        );
+        return response()->json([
+            'success' => true,
+            'data' => $berita
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Berita $berita)
+    // Mengupdate data berita.
+    public function update(Request $request, $id)
     {
-        //
+        $validatedData = $request->validate([
+            'judul' => 'required|string|max:255',
+            'konten' => 'required|string',
+            'penulis' => 'nullable|string|max:255'
+        ]);
+
+        $berita = Berita::find($id);
+        if (!$berita) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Berita not found'
+            ], 404);
+        }
+
+        $berita->update($validatedData);
+        return response()->json([
+            'success' => true,
+            'message' => 'Berita updated successfully',
+            'data' => $berita
+        ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Berita $berita)
+    // Menghapus data berita.
+    public function destroy($id)
     {
-        //
+        $berita = Berita::find($id);
+        if (!$berita) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Berita not found'
+            ], 404);
+        }
+
+        $berita->delete();
+        return response()->json([
+            'success' => true,
+            'message' => 'Berita deleted successfully'
+        ], 204);
     }
 }
