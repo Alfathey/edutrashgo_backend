@@ -1,5 +1,5 @@
 <?php
-include('template/head.php');
+include('./template/head.php');
 ?>
 
 <div class="container py-5">
