@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Kuis;
+use App\Http\Resources\KuisResource;
+use Illuminate\Support\Facades\Auth;
 
 class KuisController extends Controller
 {
@@ -13,12 +15,19 @@ class KuisController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Successfully retrieved list of all kuis',
-            'data' => $kuis
+            'data' => KuisResource::collection($kuis)
         ]);
     }
 
     public function store(Request $request)
     {
+        // Check if user is authenticated and has the role of "guru"
+        if (Auth::user()->peran !== 'guru') {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
         $request->validate([
             'judul' => 'required',
             'deskripsi' => 'nullable',
@@ -28,7 +37,7 @@ class KuisController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Kuis created successfully',
-            'data' => $kuis
+            'data' => new KuisResource($kuis)
         ], 201);
     }
 
@@ -45,12 +54,19 @@ class KuisController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Successfully retrieved kuis',
-            'data' => $kuis
+            'data' => new KuisResource($kuis)
         ]);
     }
 
     public function update(Request $request, $id)
     {
+        // Check if user is authenticated and has the role of "guru"
+        if (Auth::user()->peran !== 'guru') {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
         $request->validate([
             'judul' => 'required',
             'deskripsi' => 'nullable',
@@ -68,24 +84,33 @@ class KuisController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Kuis updated successfully',
-            'data' => $kuis
+            'data' => new KuisResource($kuis)
         ], 200);
     }
 
     public function destroy($id)
     {
+        // Check if user is authenticated and has the role of "guru"
+        if (Auth::user()->peran !== 'guru') {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+        
         $kuis = Kuis::find($id);
         if (!$kuis) {
             return response()->json([
-                'success' => false,
-                'message' => 'Kuis not found'
+                'status' => 'error',
+                'message' => 'kuis tidak ditemukan'
             ], 404);
         }
 
+        // Delete the kuis
         $kuis->delete();
+
         return response()->json([
-            'success' => true,
-            'message' => 'Kuis deleted successfully'
-        ], 204);
+            'status' => 'success',
+            'message' => 'kuis berhasil dihapus'
+        ], 200);
     }
 }

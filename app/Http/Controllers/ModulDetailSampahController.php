@@ -4,39 +4,55 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ModulDetailSampah;
+use App\Http\Resources\ModulDetailSampahResource;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class ModulDetailSampahController extends Controller
 {
-    // Menampilkan semua data modul_detail_sampah.
     public function index()
     {
         $details = ModulDetailSampah::with('kategori')->get();
         return response()->json([
             'success' => true,
             'message' => 'List of all detail sampah',
-            'data' => $details
+            'data' => ModulDetailSampahResource::collection($details)
         ]);
     }
 
-    // Menyimpan data detail sampah baru.
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'id_kategori' => 'required|exists:modul_kategori,id_kategori',
+        // Check if user is authenticated and has the role of "guru"
+        if (Auth::user()->peran !== 'guru') {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'id_kategori' => 'required|integer|exists:modul_kategori,id_kategori',
             'nama' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
-            'url_gambar' => 'nullable|string|max:255'
+            'url_gambar' => 'nullable|string|max:255',
         ]);
 
-        $detail = ModulDetailSampah::create($validatedData);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $detail = ModulDetailSampah::create($validator->validated());
+
         return response()->json([
             'success' => true,
             'message' => 'Detail sampah created successfully',
-            'data' => $detail
+            'data' => new ModulDetailSampahResource($detail)
         ], 201);
     }
 
-    // Menampilkan data detail sampah tertentu.
     public function show($id)
     {
         $detail = ModulDetailSampah::with('kategori')->find($id);
@@ -49,19 +65,19 @@ class ModulDetailSampahController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $detail
+            'message' => 'Successfully retrieved detail sampah',
+            'data' => new ModulDetailSampahResource($detail)
         ]);
     }
 
-    // Mengupdate data detail sampah.
     public function update(Request $request, $id)
     {
-        $validatedData = $request->validate([
-            'id_kategori' => 'required|exists:modul_kategori,id_kategori',
-            'nama' => 'required|string|max:255',
-            'deskripsi' => 'nullable|string',
-            'url_gambar' => 'nullable|string|max:255'
-        ]);
+        // Check if user is authenticated and has the role of "guru"
+        if (Auth::user()->peran !== 'guru') {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
 
         $detail = ModulDetailSampah::find($id);
         if (!$detail) {
@@ -71,17 +87,39 @@ class ModulDetailSampahController extends Controller
             ], 404);
         }
 
-        $detail->update($validatedData);
+        $validator = Validator::make($request->all(), [
+            'id_kategori' => 'required|integer|exists:modul_kategori,id_kategori',
+            'nama' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'url_gambar' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $detail->update($validator->validated());
+
         return response()->json([
             'success' => true,
             'message' => 'Detail sampah updated successfully',
-            'data' => $detail
+            'data' => new ModulDetailSampahResource($detail)
         ], 200);
     }
 
-    // Menghapus data detail sampah.
     public function destroy($id)
     {
+        // Check if user is authenticated and has the role of "guru"
+        if (Auth::user()->peran !== 'guru') {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+        
         $detail = ModulDetailSampah::find($id);
         if (!$detail) {
             return response()->json([
@@ -94,6 +132,6 @@ class ModulDetailSampahController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Detail sampah deleted successfully'
-        ], 204);
+        ], 200);
     }
 }

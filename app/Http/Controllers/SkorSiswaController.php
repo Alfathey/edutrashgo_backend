@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\SkorSiswa;
+use App\Http\Resources\SkorSiswaResource;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class SkorSiswaController extends Controller
 {
@@ -14,7 +17,7 @@ class SkorSiswaController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'List of all skor siswa',
-            'data' => $skorSiswa
+            'data' => SkorSiswaResource::collection($skorSiswa)
         ]);
     }
 
@@ -27,12 +30,12 @@ class SkorSiswaController extends Controller
             'skor' => 'required|integer'
         ]);
 
-        $skorSiswa = SkorSiswa::create($validatedData);
-        return response()->json([
-            'success' => true,
-            'message' => 'Skor siswa created successfully',
-            'data' => $skorSiswa
-        ], 201);
+            $skorSiswa = SkorSiswa::create($validatedData);
+            return response()->json([
+                'success' => true,
+                'message' => 'Skor siswa created successfully',
+                'data' => new SkorSiswaResource($skorSiswa)
+            ], 201);
     }
 
     // Menampilkan data skor siswa tertentu.
@@ -48,7 +51,7 @@ class SkorSiswaController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $skorSiswa
+            'data' => new SkorSiswaResource($skorSiswa)
         ]);
     }
 
@@ -73,7 +76,7 @@ class SkorSiswaController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Skor siswa updated successfully',
-            'data' => $skorSiswa
+            'data' => new SkorSiswaResource($skorSiswa)
         ], 200);
     }
 
@@ -83,15 +86,17 @@ class SkorSiswaController extends Controller
         $skorSiswa = SkorSiswa::find($id);
         if (!$skorSiswa) {
             return response()->json([
-                'success' => false,
-                'message' => 'Skor siswa not found'
+                'status' => 'error',
+                'message' => 'skorSiswa tidak ditemukan'
             ], 404);
         }
 
+        // Delete the berita
         $skorSiswa->delete();
+
         return response()->json([
-            'success' => true,
-            'message' => 'Skor siswa deleted successfully'
-        ], 204);
+            'status' => 'success',
+            'message' => 'skorSiswa berhasil dihapus'
+        ], 200);
     }
 }
