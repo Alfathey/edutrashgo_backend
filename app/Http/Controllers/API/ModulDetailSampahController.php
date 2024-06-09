@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\ModulDetailSampah;
 use App\Http\Resources\ModulDetailSampahResource;
 use Illuminate\Support\Facades\Validator;
@@ -23,11 +24,11 @@ class ModulDetailSampahController extends Controller
     public function store(Request $request)
     {
         // Check if user is authenticated and has the role of "guru"
-        if (Auth::user()->peran !== 'guru') {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
-        }
+        // if (Auth::user()->peran !== 'guru') {
+        //     return response()->json([
+        //         'message' => 'Unauthorized'
+        //     ], 401);
+        // }
 
         $validator = Validator::make($request->all(), [
             'id_kategori' => 'required|integer|exists:modul_kategori,id_kategori',
@@ -55,29 +56,23 @@ class ModulDetailSampahController extends Controller
 
     public function show($id)
     {
-        $detail = ModulDetailSampah::with('kategori')->find($id);
-        if (!$detail) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Detail sampah not found'
-            ], 404);
-        }
+        $detail = ModulDetailSampah::find($id);
+        return response()->json(
+            $detail,
+            200
+        );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Successfully retrieved detail sampah',
-            'data' => new ModulDetailSampahResource($detail)
-        ]);
+        
     }
 
     public function update(Request $request, $id)
     {
         // Check if user is authenticated and has the role of "guru"
-        if (Auth::user()->peran !== 'guru') {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
-        }
+        // if (Auth::user()->peran !== 'guru') {
+        //     return response()->json([
+        //         'message' => 'Unauthorized'
+        //     ], 401);
+        // }
 
         $detail = ModulDetailSampah::find($id);
         if (!$detail) {
@@ -114,11 +109,11 @@ class ModulDetailSampahController extends Controller
     public function destroy($id)
     {
         // Check if user is authenticated and has the role of "guru"
-        if (Auth::user()->peran !== 'guru') {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
-        }
+        // if (Auth::user()->peran !== 'guru') {
+        //     return response()->json([
+        //         'message' => 'Unauthorized'
+        //     ], 401);
+        // }
         
         $detail = ModulDetailSampah::find($id);
         if (!$detail) {
@@ -133,5 +128,23 @@ class ModulDetailSampahController extends Controller
             'success' => true,
             'message' => 'Detail sampah deleted successfully'
         ], 200);
+    }
+
+    public function filterByCategory($id_kategori)
+    {
+        $modulSampah = ModulDetailSampah::where('id_kategori', $id_kategori)->get();
+
+        if ($modulSampah->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No modul sampah found for this category'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Successfully retrieved modul sampah for this category',
+            'data' => ModulDetailSampahResource::collection($modulSampah)
+        ]);
     }
 }

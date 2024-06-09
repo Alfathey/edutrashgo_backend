@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Models\TantanganDetail;
 use App\Http\Resources\TantanganDetailResource;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
 
 class TantanganDetailController extends Controller
 {
@@ -41,17 +42,11 @@ class TantanganDetailController extends Controller
     public function show($id)
     {
         $tantanganDetail = TantanganDetail::find($id);
-        if (!$tantanganDetail) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tantangan detail not found'
-            ], 404);
-        }
 
-        return response()->json([
-            'success' => true,
-            'data' => new TantanganDetailResource($tantanganDetail)
-        ]);
+        return response()->json(
+            $tantanganDetail,
+            200
+        );
     }
 
     // Mengupdate data detail tantangan
@@ -94,6 +89,24 @@ class TantanganDetailController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Tantangan detail deleted successfully'
+        ]);
+    }
+
+    public function filterByCategory($id_kategori)
+    {
+        $modulSampah = TantanganDetail::where('id_tantangan', $id_kategori)->get();
+
+        if ($modulSampah->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No misi tantangan found for this category'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Successfully retrieved misi tantangan for this category',
+            'data' => TantanganDetailResource::collection($modulSampah)
         ]);
     }
 }

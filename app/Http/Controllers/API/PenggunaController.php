@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Models\Pengguna;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\PenggunaResource;
 use Illuminate\Support\Facades\Auth;
 

@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Models\PertanyaanKuis;
 use App\Http\Resources\PertanyaanKuisResource;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class PertanyaanKuisController extends Controller

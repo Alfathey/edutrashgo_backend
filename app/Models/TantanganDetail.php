@@ -13,7 +13,7 @@ class TantanganDetail extends Model
     protected $table = 'tantangan_detail';
 
     // Primary key
-    protected $primaryKey = 'tantangan_detail_id';
+    protected $primaryKey = 'id';
 
     // Kolom yang dapat diisi secara massal
     protected $fillable = ['id_tantangan', 'misi', 'tugas'];

@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\KontenDaurUlang;
 use App\Http\Resources\ModulDaurUlangResource;
 use Illuminate\Support\Facades\Validator;
@@ -22,11 +23,11 @@ class KontenDaurUlangController extends Controller
 
     public function store(Request $request)
     {
-        if (Auth::user()->peran !== 'guru') {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
-        }
+        // if (Auth::user()->peran !== 'guru') {
+        //     return response()->json([
+        //         'message' => 'Unauthorized'
+        //     ], 401);
+        // }
 
         // Lakukan validasi input
         $validator = Validator::make($request->all(), [
@@ -59,28 +60,21 @@ class KontenDaurUlangController extends Controller
     public function show($id)
     {
         $konten = KontenDaurUlang::find($id);
-        if (!$konten) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Konten not found'
-            ], 404);
-        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Successfully retrieved konten',
-            'data' => new ModulDaurUlangResource($konten)
-        ]);
+        return response()->json(
+            $konten,
+            200
+        );
     }
 
     public function update(Request $request, $id)
     {
         // Check if user is authenticated and has the role of "guru"
-        if (Auth::user()->peran !== 'guru') {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
-        }
+        // if (Auth::user()->peran !== 'guru') {
+        //     return response()->json([
+        //         'message' => 'Unauthorized'
+        //     ], 401);
+        // }
 
         $konten = KontenDaurUlang::find($id);
         if (!$konten) {
@@ -120,11 +114,11 @@ class KontenDaurUlangController extends Controller
     public function destroy($id)
     {
         // Check if user is authenticated and has the role of "guru"
-        if (Auth::user()->peran !== 'guru') {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
-        }
+        // if (Auth::user()->peran !== 'guru') {
+        //     return response()->json([
+        //         'message' => 'Unauthorized'
+        //     ], 401);
+        // }
         
         // Cari konten berdasarkan ID
         $konten = KontenDaurUlang::find($id);

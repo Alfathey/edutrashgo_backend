@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Models\ModulKategori;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class ModulKategoriController extends Controller
@@ -37,21 +38,14 @@ class ModulKategoriController extends Controller
     // }
 
     // Menampilkan data kategori tertentu.
-    // public function show($id)
-    // {
-    //     $kategori = ModulKategori::find($id);
-    //     if (!$kategori) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Category not found'
-    //         ], 404);
-    //     }
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'data' => $kategori
-    //     ]);
-    // }
+    public function show($id)
+    {
+        $kategori = ModulKategori::find($id);
+        return response()->json(
+            $kategori,
+            200
+        );
+    }
 
     // Mengupdate data kategori.
     // public function update(Request $request, $id)

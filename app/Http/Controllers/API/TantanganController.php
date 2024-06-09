@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Models\Tantangan;
 use App\Http\Resources\TantanganResource;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
 
 class TantanganController extends Controller
 {
@@ -42,17 +43,11 @@ class TantanganController extends Controller
     public function show($id)
     {
         $tantangan = Tantangan::find($id);
-        if (!$tantangan) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tantangan not found'
-            ], 404);
-        }
 
-        return response()->json([
-            'success' => true,
-            'data' => new TantanganResource($tantangan)
-        ]);
+        return response()->json(
+            $tantangan,
+            200
+        );
     }
 
     // Mengupdate data tantangan
